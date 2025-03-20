@@ -3,3 +3,19 @@ buf = "latest"
 go = "latest"
 golangci-lint = "latest"
 protobuf = "latest"
+
+
+[tasks."generate"]
+depends = ["generate:*"]
+
+[tasks."generate:buf"]
+run = "buf generate"
+
+[tasks."lint"]
+depends = ["lint:*"]
+
+[tasks."lint:go"]
+run = "golangci-lint run"
+
+[tasks."lint:buf"]
+run = "buf lint"
