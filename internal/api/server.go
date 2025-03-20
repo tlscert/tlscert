@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/tlscert/backend/internal/manager"
@@ -35,14 +36,24 @@ func (s *Server) handleGetCertificate(w http.ResponseWriter, r *http.Request) {
 	certificate, err := s.cm.GetCertificate(r.Context())
 
 	if err != nil {
+		log.Printf("error getting certificate: %v", err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		err := json.NewEncoder(w).Encode(map[string]interface{}{
 			"error": err.Error(),
 		})
+		if err != nil {
+			log.Printf("error encoding error: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(certificate)
+	if err := json.NewEncoder(w).Encode(certificate); err != nil {
+		log.Printf("error encoding certificate: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
