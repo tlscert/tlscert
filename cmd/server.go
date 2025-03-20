@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/tlscert/backend/internal/api"
-	"github.com/tlscert/backend/internal/kubernetes"
-	"github.com/tlscert/backend/internal/manager"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/tlscert/backend/internal/api"
+	"github.com/tlscert/backend/internal/kubernetes"
+	"github.com/tlscert/backend/internal/manager"
 )
 
 func main() {

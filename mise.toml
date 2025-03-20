@@ -1,0 +1,5 @@
+[tools]
+buf = "latest"
+go = "latest"
+golangci-lint = "latest"
+protobuf = "latest"

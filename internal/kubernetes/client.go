@@ -2,10 +2,11 @@ package kubernetes
 
 import (
 	"errors"
+	"os"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"os"
 
 	certmanagerclientset "github.com/cert-manager/cert-manager/pkg/client/clientset/versioned"
 )
