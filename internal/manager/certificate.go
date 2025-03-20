@@ -7,6 +7,7 @@ import (
 	"github.com/tlscert/backend/internal"
 	"github.com/tlscert/backend/internal/kubernetes"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"math/rand/v2"
 )
 
 type CertificateManager struct {
@@ -34,7 +35,13 @@ func (m *CertificateManager) GetCertificate(ctx context.Context) (*internal.Cert
 
 	// TODO: Filter for ready certificates
 	// TODO: Mark certificates as used?
-	cert := certs.Items[0]
+
+	n := len(certs.Items) - 1
+	if n > 0 {
+		// TODO: something more reasonable
+		n = rand.IntN(n)
+	}
+	cert := certs.Items[n]
 
 	secretName := cert.Spec.SecretName
 
