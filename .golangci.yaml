@@ -1,0 +1,21 @@
+linters:
+
+  enable:
+    - goimports
+    - misspell
+    - revive
+    - noctx
+    - bodyclose
+    - wastedassign
+    - sqlclosecheck
+    - usetesting
+    - tparallel
+    - paralleltest
+    - gocritic
+    - nilnil
+    - nilerr
+    - exhaustive
+
+run:
+  timeout: 5m
+
