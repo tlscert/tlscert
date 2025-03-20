@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/tlscert/backend/internal/manager"
 	"net/http"
+
+	"github.com/tlscert/backend/internal/manager"
 )
 
 type Server struct {
