@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package tlscert.service.v1;
+
+option go_package = "tlscert/service/v1";
+
+// CertificateService is the service for the TLS certificate API.
+service CertificateService {
+  // GetCertificate returns a certificate for the user.
+  rpc GetCertificate(GetCertificateRequest) returns (GetCertificateResponse);
+}
+
+// GetCertificateRequest is the request for the GetCertificate RPC.
+message GetCertificateRequest {
+
+}
+
+// GetCertificateResponse is the response for the GetCertificate RPC.
+message GetCertificateResponse {
+  // Host is the hostname for which the certificate is issued.
+  string host = 1;
+  // Certificate is the PEM encoded certificate.
+  // The first certificate is the leaf certificate. The rest are the chain of trust.
+  repeated bytes certificate = 2;
+  // Key is the PKCS#8 encoded private key.
+  bytes key = 4;
+}
