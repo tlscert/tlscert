@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: demo-cert
+  namespace: tlscert
+  labels:
+    api.tlscert.dev/pool: manual
+spec:
+  dnsNames:
+  - demo-cert.u.tlscert.dev
+  secretName: demo-cert
+  usages:
+  - digital signature
+  - key encipherment
+  issuerRef:
+    name: selfsigned
+    kind: Issuer
+    group: cert-manager.io
