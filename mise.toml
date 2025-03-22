@@ -4,12 +4,15 @@ go = "latest"
 golangci-lint = "latest"
 protobuf = "latest"
 
-
 [tasks."generate"]
 depends = ["generate:*"]
 
 [tasks."generate:buf"]
 run = "buf generate"
+
+[tasks."generate:crd"]
+file = "hack/update-codegen.sh"
+depends = ["deps:generate-crd"]
 
 [tasks."lint"]
 depends = ["lint:*"]
@@ -19,3 +22,8 @@ run = "golangci-lint run"
 
 [tasks."lint:buf"]
 run = "buf lint"
+
+[tasks."deps:generate-crd"]
+# No idea if this is the right way to do this
+run = "go get"
+dir = "hack"
