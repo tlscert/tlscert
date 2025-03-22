@@ -2,14 +2,17 @@ module github.com/tlscert/backend
 
 go 1.24
 
+tool (
+	k8s.io/code-generator
+	sigs.k8s.io/controller-tools/cmd/controller-gen
+)
+
 require (
 	github.com/cert-manager/cert-manager v1.17.1
 	google.golang.org/grpc v1.69.2
 	google.golang.org/protobuf v1.36.0
 	k8s.io/apimachinery v0.32.3
 	k8s.io/client-go v0.32.3
-	k8s.io/code-generator v0.32.0
-	sigs.k8s.io/controller-tools v0.15.0
 )
 
 require (
@@ -57,10 +60,12 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.32.3 // indirect
 	k8s.io/apiextensions-apiserver v0.32.0 // indirect
+	k8s.io/code-generator v0.32.0 // indirect
 	k8s.io/gengo/v2 v2.0.0-20240911193312-2b36238f13e9 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20241212222426-2c72e554b1e7 // indirect
 	k8s.io/utils v0.0.0-20241210054802-24370beab758 // indirect
+	sigs.k8s.io/controller-tools v0.15.0 // indirect
 	sigs.k8s.io/gateway-api v1.1.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.5.0 // indirect
