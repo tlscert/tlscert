@@ -1,8 +1,13 @@
 [tools]
 buf = "latest"
+ctlptl = "latest"
 go = "latest"
 golangci-lint = "latest"
+helm = "latest"
+kind = "latest"
+ko = "latest"
 protobuf = "latest"
+tilt = "latest"
 
 
 [tasks."generate"]
@@ -19,3 +24,6 @@ run = "golangci-lint run"
 
 [tasks."lint:buf"]
 run = "buf lint"
+
+[tasks."local:up"]
+run = ["ctlptl apply -f .local/clusters.yaml", "tilt up"]
