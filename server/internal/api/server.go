@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/tlscert/backend/internal/manager"
+	"github.com/tlscert/tlscert/server/internal/manager"
 )
 
 type Server struct {

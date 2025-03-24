@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tlscert/backend/internal/api"
-	"github.com/tlscert/backend/internal/kubernetes"
-	"github.com/tlscert/backend/internal/manager"
+	"github.com/tlscert/tlscert/server/internal/api"
+	"github.com/tlscert/tlscert/server/internal/kubernetes"
+	"github.com/tlscert/tlscert/server/internal/manager"
 )
 
 func main() {

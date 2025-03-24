@@ -1,4 +1,4 @@
-module github.com/tlscert/backend
+module github.com/tlscert/tlscert
 
 go 1.24
 
