@@ -30,8 +30,9 @@ function codegen::join() {
   echo "$*"
 }
 
-PKG_NAME="tlscert.dev/api"
+PKG_NAME="github.com/tlscert/backend"
 OUTPUT_PKG="pkg/generated"
+BOILERPLATE="${SCRIPT_ROOT}"/hack/boilerplate.go.txt
 
 source "${CODEGEN_PKG}"/kube_codegen.sh
 
@@ -48,10 +49,10 @@ go install \
 
 
 echo "Generating helpers..." >&2
-kube::codegen::gen_helpers "$SCRIPT_ROOT"
+kube::codegen::gen_helpers --boilerplate "$BOILERPLATE" "$SCRIPT_ROOT"
 
 echo "Generating scheme registration..." >&2
-kube::codegen::gen_register "${SCRIPT_ROOT}"
+kube::codegen::gen_register --boilerplate "$BOILERPLATE" "${SCRIPT_ROOT}"
 
 echo "Generating clientset..." >&2
 kube::codegen::gen_client \
@@ -59,15 +60,24 @@ kube::codegen::gen_client \
   --with-applyconfig \
   --output-dir "${SCRIPT_ROOT}/${OUTPUT_PKG}"\
   --output-pkg "${PKG_NAME}/${OUTPUT_PKG}" \
-  "${SCRIPT_ROOT}/pkg"
+  --boilerplate "$BOILERPLATE" \
+  "${SCRIPT_ROOT}"
+
+# This should be covered by gen_helpers, but it won't do it for some reason
+echo "Generating deepcopy..." >&2
+go run sigs.k8s.io/controller-tools/cmd/controller-gen \
+  object \
+  paths="./..." \
+  output:dir="${SCRIPT_ROOT}/api/v1alpha1"
+echo "Deepcopy generated" >&2
 
 pushd "${SCRIPT_ROOT}" >/dev/null
 
 # Generate CRD manifests for all types using controller-gen
 echo "Generating crd manifests..." >&2
-controller-gen \
+go run sigs.k8s.io/controller-tools/cmd/controller-gen \
   crd \
-  paths="${PKG_NAME}/..." \
+  paths="./..." \
   output:dir="${SCRIPT_ROOT}/crds"
 echo "CRD manifests generated" >&2
 

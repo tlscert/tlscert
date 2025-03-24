@@ -3,18 +3,18 @@ package manager
 import (
 	"context"
 	"errors"
+	"github.com/tlscert/backend/internal/controllers"
 
 	"github.com/tlscert/backend/internal"
-	"github.com/tlscert/backend/internal/kubernetes"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"math/rand/v2"
 )
 
 type CertificateManager struct {
-	Client *kubernetes.Client
+	Client *controllers.Clients
 }
 
-func NewCertificateManager(client *kubernetes.Client) *CertificateManager {
+func NewCertificateManager(client *controllers.Clients) *CertificateManager {
 	return &CertificateManager{
 		Client: client,
 	}

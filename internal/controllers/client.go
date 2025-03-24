@@ -1,7 +1,9 @@
-package kubernetes
+package controllers
 
 import (
 	"errors"
+	v1alpha1 "github.com/tlscert/backend/pkg/generated/clientset/versioned"
+	"k8s.io/klog/v2"
 	"os"
 
 	"k8s.io/client-go/kubernetes"
@@ -11,15 +13,16 @@ import (
 	certmanagerclientset "github.com/cert-manager/cert-manager/pkg/client/clientset/versioned"
 )
 
-type Client struct {
+type Clients struct {
 	Kubernetes  kubernetes.Interface
 	CertManager certmanagerclientset.Interface
+	CertPool    v1alpha1.Interface
 	Namespace   string
 }
 
-// NewClient creates a new Kubernetes client.
+// NewClients creates a new Kubernetes client.
 // It attempts to use in-cluster config first, then falls back to kubeconfig file.
-func NewClient() (*Client, error) {
+func NewClients() (*Clients, error) {
 	namespace := os.Getenv("POD_NAMESPACE")
 	if namespace == "" {
 		namespace = "tlscert" // Fallback for local development
@@ -29,6 +32,8 @@ func NewClient() (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	klog.Infof("connecting to kubernetes api at %s", config.Host)
 
 	k8s, err := kubernetes.NewForConfig(config)
 	if err != nil {
@@ -40,9 +45,15 @@ func NewClient() (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{
+	certPool, err := v1alpha1.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Clients{
 		Kubernetes:  k8s,
 		CertManager: certManager,
+		CertPool:    certPool,
 		Namespace:   namespace,
 	}, nil
 }

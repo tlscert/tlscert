@@ -7,21 +7,31 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"syscall"
 	"time"
 
 	"github.com/tlscert/backend/internal/api"
-	"github.com/tlscert/backend/internal/kubernetes"
+	"github.com/tlscert/backend/internal/controllers"
 	"github.com/tlscert/backend/internal/manager"
 )
 
 func main() {
-	client, err := kubernetes.NewClient()
+	clients, err := controllers.NewClients()
 	if err != nil {
 		log.Fatalf("Failed to create Kubernetes client: %v", err)
 	}
 
-	certificateManager := manager.NewCertificateManager(client)
+	controller := controllers.NewCertificatePoolController(clients)
+
+	ctx := ctrl.SetupSignalHandler()
+	go func() {
+		if err := controller.Run(ctx); err != nil && !errors.Is(err, context.Canceled) {
+			log.Fatalf("failed to run CertificatePool controller: %v", err)
+		}
+	}()
+
+	certificateManager := manager.NewCertificateManager(clients)
 
 	server := api.NewServer(certificateManager)
 	httpServer := &http.Server{
