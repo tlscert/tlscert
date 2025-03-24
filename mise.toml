@@ -27,3 +27,6 @@ run = "buf lint"
 
 [tasks."local:up"]
 run = ["ctlptl apply -f .local/clusters.yaml", "tilt up"]
+
+[tasks."local:down"]
+run = "ctlptl delete -f .local/clusters.yaml"
