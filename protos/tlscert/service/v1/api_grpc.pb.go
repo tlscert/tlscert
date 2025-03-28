@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: tlscert/service/v1/api.proto
 
-package servicev1
+package v1
 
 import (
 	context "context"

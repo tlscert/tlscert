@@ -17,5 +17,5 @@ k8s_yaml('.local/k8s.yaml')
 
 k8s_resource(
     workload='backend',
-    port_forwards=8080
+    port_forwards=[8080, 50051],
 )

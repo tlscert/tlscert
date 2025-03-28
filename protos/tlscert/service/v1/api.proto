@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package tlscert.service.v1;
 
-option go_package = "tlscert/service/v1";
+option go_package = "github.com/tlscert/backend/protos/tlscert/service/v1";
 
 // CertificateService is the service for the TLS certificate API.
 service CertificateService {
