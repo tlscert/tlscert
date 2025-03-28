@@ -22,7 +22,7 @@ type Client struct {
 func NewClient() (*Client, error) {
 	namespace := os.Getenv("POD_NAMESPACE")
 	if namespace == "" {
-		namespace = "tlscert" // Fallback for local development
+		namespace = "default" // Fallback for local development
 	}
 
 	config, err := getConfig()
