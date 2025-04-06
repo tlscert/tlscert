@@ -1,0 +1,45 @@
+name: test
+
+on:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'
+
+    - name: Run tests
+      run: go test ./...
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v7
+
+    - name: Check Go Modules Tidy
+      run: |
+        echo "Running go mod tidy..."
+        go mod tidy
+        echo "go mod tidy finished."
+
+    - name: Check for uncommitted changes
+      run: |
+        git_status=$(git status --porcelain)
+        if [ -n "$git_status" ]; then
+          echo "::error::Uncommitted changes detected after build and tests."
+          echo "::group::Git Status"
+          echo "$git_status"
+          echo "::endgroup::"
+          echo "::group::Git Diff"
+          git diff --color=always
+          echo "::endgroup::"
+          exit 1
+        else
+          echo "No uncommitted changes found."
+        fi
+
