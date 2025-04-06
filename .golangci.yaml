@@ -1,21 +1,36 @@
+version: "2"
 linters:
-
+  enable:
+    - bodyclose
+    - exhaustive
+    - gocritic
+    - misspell
+    - nilerr
+    - nilnil
+    - noctx
+    - paralleltest
+    - revive
+    - sqlclosecheck
+    - tparallel
+    - usetesting
+    - wastedassign
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
   enable:
     - goimports
-    - misspell
-    - revive
-    - noctx
-    - bodyclose
-    - wastedassign
-    - sqlclosecheck
-    - usetesting
-    - tparallel
-    - paralleltest
-    - gocritic
-    - nilnil
-    - nilerr
-    - exhaustive
-
-run:
-  timeout: 5m
-
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
