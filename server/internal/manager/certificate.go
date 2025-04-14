@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"math/rand/v2"
 
@@ -13,17 +14,20 @@ import (
 
 type CertificateManager struct {
 	Client *kubernetes.Client
+	Pool   *string
 }
 
-func NewCertificateManager(client *kubernetes.Client) *CertificateManager {
+func NewCertificateManager(client *kubernetes.Client, pool *string) *CertificateManager {
 	return &CertificateManager{
 		Client: client,
+		Pool:   pool,
 	}
 }
 
 func (m *CertificateManager) GetCertificate(ctx context.Context) (*internal.Certificate, error) {
+	labelSelector := fmt.Sprintf("api.tlscert.dev/pool=%s", *m.Pool)
 	certs, err := m.Client.CertManager.CertmanagerV1().Certificates(m.Client.Namespace).List(ctx, v1.ListOptions{
-		LabelSelector: "api.tlscert.dev/pool=manual",
+		LabelSelector: labelSelector,
 	})
 
 	if err != nil {

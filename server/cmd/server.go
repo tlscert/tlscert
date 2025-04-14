@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"flag"
 	"log"
 	"net"
 	"net/http"
@@ -22,17 +23,22 @@ import (
 )
 
 func main() {
+	pool := flag.String("pool", "manual", "the certificate pool label to use")
+	httpPort := flag.String("http-port", "8080", "the port to listen for http on")
+	grpcPort := flag.String("grpc-port", "50051", "the port to listen for grpc on")
+	flag.Parse()
+
 	client, err := kubernetes.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create Kubernetes client: %v", err)
 	}
 
-	certificateManager := manager.NewCertificateManager(client)
+	certificateManager := manager.NewCertificateManager(client, pool)
 
-	// HTTP Server
+	httpListenPort := net.JoinHostPort("", *httpPort)
 	server := api.NewServer(certificateManager)
 	httpServer := &http.Server{
-		Addr:    ":8080",
+		Addr:    httpListenPort,
 		Handler: server,
 	}
 
@@ -45,7 +51,8 @@ func main() {
 
 	errCh := make(chan error)
 	// Start gRPC server
-	lis, err := net.Listen("tcp", ":50051")
+	grpcListenPort := net.JoinHostPort("", *grpcPort)
+	lis, err := net.Listen("tcp", grpcListenPort)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
