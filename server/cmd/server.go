@@ -23,6 +23,8 @@ import (
 )
 
 func main() {
+	log.Print("Starting tlscert server")
+
 	pool := flag.String("pool", "manual", "the certificate pool label to use")
 	httpPort := flag.String("http-port", "8080", "the port to listen for http on")
 	grpcPort := flag.String("grpc-port", "50051", "the port to listen for grpc on")
