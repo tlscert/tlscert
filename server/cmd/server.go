@@ -2,6 +2,12 @@ package main
 
 import (
 	"flag"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+
 	v1 "github.com/tlscert/tlscert/protos/tlscert/service/v1"
 	"github.com/tlscert/tlscert/server/internal/kubernetes"
 	"github.com/tlscert/tlscert/server/internal/manager"
@@ -9,11 +15,6 @@ import (
 	"github.com/tlscert/tlscert/server/internal/services/certificatesvc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 var (
