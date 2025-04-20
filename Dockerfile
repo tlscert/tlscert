@@ -9,7 +9,6 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /server github.com/tlscert/tlscert/server/cmd
 
-EXPOSE 8080
 EXPOSE 50051
 
 CMD ["/server"]

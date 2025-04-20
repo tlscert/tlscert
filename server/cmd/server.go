@@ -1,31 +1,27 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"flag"
-	"log"
-	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	v1 "github.com/tlscert/tlscert/protos/tlscert/service/v1"
-	"github.com/tlscert/tlscert/server/internal/api"
 	"github.com/tlscert/tlscert/server/internal/kubernetes"
 	"github.com/tlscert/tlscert/server/internal/manager"
 	"github.com/tlscert/tlscert/server/internal/middleware"
 	"github.com/tlscert/tlscert/server/internal/services/certificatesvc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"log"
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+)
+
+var (
+	pool     = flag.String("pool", "manual", "the certificate pool label to use")
+	grpcPort = flag.String("grpc-port", "50051", "the port to listen for grpc on")
 )
 
 func main() {
-	pool := flag.String("pool", "manual", "the certificate pool label to use")
-	httpPort := flag.String("http-port", "8080", "the port to listen for http on")
-	grpcPort := flag.String("grpc-port", "50051", "the port to listen for grpc on")
 	flag.Parse()
 
 	client, err := kubernetes.NewClient()
@@ -34,13 +30,6 @@ func main() {
 	}
 
 	certificateManager := manager.NewCertificateManager(client, pool)
-
-	httpListenPort := net.JoinHostPort("", *httpPort)
-	server := api.NewServer(certificateManager)
-	httpServer := &http.Server{
-		Addr:    httpListenPort,
-		Handler: server,
-	}
 
 	// gRPC Server
 	svc := certificatesvc.New(certificateManager)
@@ -65,13 +54,6 @@ func main() {
 	}()
 	// Register reflection service on gRPC server
 	reflection.Register(grpcServer)
-	// Start HTTP server
-	go func() {
-		log.Printf("Starting HTTP server on %s", httpServer.Addr)
-		if err := httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			errCh <- err
-		}
-	}()
 
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
@@ -83,15 +65,6 @@ func main() {
 		log.Printf("Server error: %v", err)
 	case <-sigCh:
 		log.Println("Signal received, shutting down servers...")
-	}
-
-	// Shutdown gracefully
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
-	defer cancel()
-
-	// Shutdown HTTP server
-	if err := httpServer.Shutdown(ctx); err != nil {
-		log.Printf("HTTP server shutdown error: %v", err)
 	}
 
 	// Shutdown gRPC server
