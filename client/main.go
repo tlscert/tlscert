@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -17,30 +16,25 @@ import (
 	"syscall"
 	"time"
 
+	svcpb "github.com/tlscert/tlscert/protos/tlscert/service/v1"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
+
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	address   = flag.String("address", "localhost:50051", "the address to connect to")
+	plaintext = flag.Bool("plaintext", false, "use plaintext")
+	target    = flag.String("target", "http://localhost:8080", "the target port to proxy to")
+	port      = flag.String("port", "8443", "the port to listen on")
+)
+
 func _main() error {
-	server := flag.String("server", "localhost:8080", "the server to use")
-	target := flag.String("target", "http://localhost:8080", "the target port to proxy to")
-	port := flag.String("port", "8443", "the port to listen on")
 	flag.Parse()
 
-	address := url.URL{Scheme: "http", Host: *server, Path: "/certificate"}
-
-	resp, err := http.Get(address.String()) //nolint:noctx // This is fine. We're probably removing this code anyway.
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	certificateResponse := CertificateResponse{}
-	if err := json.NewDecoder(resp.Body).Decode(&certificateResponse); err != nil {
-		return err
-	}
-
-	pair, err := tls.X509KeyPair(certificateResponse.Chain, certificateResponse.Key)
-
+	pair, err := getCertificatePair()
 	if err != nil {
 		return err
 	}
@@ -49,7 +43,6 @@ func _main() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("Target URL: %s", targetURL)
 
 	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 	srv := &http.Server{
@@ -63,7 +56,7 @@ func _main() error {
 	wg := errgroup.Group{}
 
 	wg.Go(func() error {
-		log.Printf("Starting proxy on https://%s%s", pair.Leaf.DNSNames[0], srv.Addr)
+		log.Printf("Starting local proxy on https://%s%s to %s", pair.Leaf.DNSNames[0], srv.Addr, targetURL)
 		if err := srv.ListenAndServeTLS("", ""); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			return fmt.Errorf("failed to start proxy: %w", err)
 		}
@@ -89,6 +82,34 @@ func _main() error {
 
 	log.Println("proxy shutdown complete")
 	return nil
+}
+
+func getCertificatePair() (tls.Certificate, error) {
+	ctx := context.Background()
+	var opts []grpc.DialOption
+	if *plaintext {
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else {
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	}
+	conn, err := grpc.NewClient(*address, opts...)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+	defer conn.Close()
+
+	client := svcpb.NewCertificateServiceClient(conn)
+	resp, err := client.GetCertificate(ctx, &svcpb.GetCertificateRequest{})
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	certPEM := make([]byte, 0)
+	for _, b := range resp.Certificate {
+		certPEM = append(certPEM, b...)
+	}
+
+	return tls.X509KeyPair(certPEM, resp.Key)
 }
 
 func main() {
