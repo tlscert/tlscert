@@ -3,6 +3,7 @@ package cert
 import (
 	"context"
 	"crypto"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 
 	svcpb "github.com/tlscert/tlscert/protos/tlscert/service/v1"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
@@ -33,6 +35,8 @@ func FetchCertificate(fetchCertificateOptions Options) (*FetchCertificateRespons
 	var opts []grpc.DialOption
 	if fetchCertificateOptions.Plaintext {
 		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else {
+		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
 	}
 	conn, err := grpc.NewClient(fetchCertificateOptions.Endpoint, opts...)
 	if err != nil {
