@@ -13,6 +13,6 @@ spec:
   - digital signature
   - key encipherment
   issuerRef:
-    name: letsencrypt
+    name: letsencrypt-production
     kind: Issuer
     group: cert-manager.io
