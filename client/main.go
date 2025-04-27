@@ -30,7 +30,7 @@ func _main() error {
 		return err
 	}
 
-	pair, err := tls.X509KeyPair(resp.CertficatePEMs[0], resp.PrivateKeyPEM)
+	pair, err := tls.X509KeyPair(resp.CertificatePEMs[0], resp.PrivateKeyPEM)
 	if err != nil {
 		return err
 	}

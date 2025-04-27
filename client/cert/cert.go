@@ -19,8 +19,8 @@ type Options struct {
 }
 
 type FetchCertificateResponse struct {
-	Certificates   []*x509.Certificate
-	CertficatePEMs [][]byte
+	Certificates    []*x509.Certificate
+	CertificatePEMs [][]byte
 
 	PrivateKey    crypto.PrivateKey
 	PrivateKeyPEM []byte
@@ -47,8 +47,8 @@ func FetchCertificate(fetchCertificateOptions Options) (*FetchCertificateRespons
 	}
 
 	ret := &FetchCertificateResponse{
-		Host:           resp.Host,
-		CertficatePEMs: slices.Clone(resp.Certificate),
+		Host:            resp.Host,
+		CertificatePEMs: slices.Clone(resp.Certificate),
 	}
 
 	for _, cert := range resp.Certificate {
