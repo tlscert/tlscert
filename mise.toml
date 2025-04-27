@@ -33,3 +33,12 @@ run = "ctlptl delete -f .local/clusters.yaml"
 
 [tasks."client"]
 run = "go run github.com/tlscert/tlscert/client"
+
+[tasks."fmt:go"]
+run = "golangci-lint fmt"
+
+[tasks."fmt:buf"]
+run = "buf format --write"
+
+[tasks.fmt]
+depends = ["fmt:*"]
