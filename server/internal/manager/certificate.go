@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"math/rand/v2"
 
@@ -26,6 +27,7 @@ func NewCertificateManager(client *kubernetes.Client, pool *string) *Certificate
 
 func (m *CertificateManager) GetCertificate(ctx context.Context) (*internal.Certificate, error) {
 	labelSelector := fmt.Sprintf("api.tlscert.dev/pool=%s", *m.Pool)
+	log.Printf("Selecting certificates with label %s in namespace %s", labelSelector, m.Client.Namespace)
 	certs, err := m.Client.CertManager.CertmanagerV1().Certificates(m.Client.Namespace).List(ctx, v1.ListOptions{
 		LabelSelector: labelSelector,
 	})
@@ -41,12 +43,14 @@ func (m *CertificateManager) GetCertificate(ctx context.Context) (*internal.Cert
 	// TODO: Filter for ready certificates
 	// TODO: Mark certificates as used?
 
+	log.Printf("Found %d certificates", len(certs.Items))
 	n := len(certs.Items) - 1
 	if n > 0 {
 		// TODO: something more reasonable
 		n = rand.IntN(n)
 	}
 	cert := certs.Items[n]
+	log.Printf("Selected certificate %s", cert.Name)
 
 	secretName := cert.Spec.SecretName
 

@@ -24,6 +24,7 @@ var (
 
 func main() {
 	flag.Parse()
+	log.Print("Starting tlscert server")
 
 	client, err := kubernetes.NewClient()
 	if err != nil {
